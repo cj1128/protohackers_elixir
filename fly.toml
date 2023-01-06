@@ -1,0 +1,20 @@
+# fly.toml file generated for cj-protohackers-elixir on 2023-01-06T12:24:51+09:00
+
+app = "cj-protohackers-elixir"
+kill_signal = "SIGTERM"
+kill_timeout = 5
+processes = []
+
+[env]
+
+[experimental]
+  allowed_public_ports = []
+  auto_rollback = true
+
+[[services]]
+  internal_port = 5001
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = []
+    port = 5001
