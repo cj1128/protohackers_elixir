@@ -10,13 +10,13 @@ defmodule Protohackers.EchoServer do
 
   @impl true
   def init(:empty) do
-    Logger.info("Starting echo server")
     {:ok, supervisor} = Task.Supervisor.start_link(max_children: 100)
 
     listen_opts = [mode: :binary, active: false, reuseaddr: true, exit_on_close: false]
 
     case :gen_tcp.listen(5001, listen_opts) do
       {:ok, socket} ->
+        Logger.info("Starting echo server")
         state = %__MODULE__{listen_socket: socket, supervisor: supervisor}
         {:ok, state, {:continue, :accept}}
 

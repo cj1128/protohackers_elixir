@@ -15,6 +15,14 @@ processes = []
   internal_port = 5001
   protocol = "tcp"
 
-  [[services.ports]]
-    handlers = []
-    port = 5001
+[[services.ports]]
+  handlers = []
+  port = 5001
+
+[[services]]
+internal_port = 5002
+protocol = "tcp"
+
+[[services.ports]]
+handlers = []
+port = 5002
