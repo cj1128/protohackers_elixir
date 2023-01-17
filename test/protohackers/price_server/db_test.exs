@@ -1,5 +1,5 @@
 defmodule Protohackers.PriceServer.DBTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Protohackers.PriceServer.DB
 
   test "adding elements and getting the average" do

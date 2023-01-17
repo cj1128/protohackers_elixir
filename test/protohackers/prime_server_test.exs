@@ -1,6 +1,7 @@
 defmodule Protohackers.PrimeServerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
+  @tag :capture_log
   test "only handles json" do
     {:ok, socket} = :gen_tcp.connect(~c"localhost", 5002, mode: :binary, active: false)
     assert :gen_tcp.send(socket, "not a json\n") == :ok
@@ -8,6 +9,7 @@ defmodule Protohackers.PrimeServerTest do
     assert :gen_tcp.recv(socket, 0, 5000) == {:ok, "malformed request\n"}
   end
 
+  @tag :capture_log
   test "json must be in valid schema" do
     {:ok, socket} = :gen_tcp.connect(~c"localhost", 5002, mode: :binary, active: false)
     assert :gen_tcp.send(socket, [Jason.encode!(%{method: :isPrime}), ?\n]) == :ok
@@ -43,7 +45,6 @@ defmodule Protohackers.PrimeServerTest do
     String.split(data, "\n", trim: true)
     |> Enum.with_index()
     |> Enum.each(fn {line, i} ->
-      # IO.puts("got line: #{inspect(line)}")
       {input, expect} = Enum.at(cases, i)
       assert %{"method" => "isPrime", "prime" => result} = Jason.decode!(line)
       assert result == expect, "is_prime of #{input}, got #{result}, expect #{expect}"
