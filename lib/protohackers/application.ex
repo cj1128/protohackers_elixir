@@ -9,7 +9,8 @@ defmodule Protohackers.Application do
   def start(_type, _args) do
     children = [
       Protohackers.EchoServer,
-      Protohackers.PrimeServer
+      Protohackers.PrimeServer,
+      Protohackers.PriceServer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
