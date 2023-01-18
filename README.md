@@ -1,21 +1,20 @@
-# Protohackers
+# Protohackers in Elixir
 
-**TODO: Add description**
+This is my implementation of the [protohackers](https://protohackers.com/) problems.
 
-## Installation
+## Problem00: Smoke Test
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `protohackers` to your list of dependencies in `mix.exs`:
+Implement a basic echo server.
 
-```elixir
-def deps do
-  [
-    {:protohackers, "~> 0.1.0"}
-  ]
-end
-```
+## Problem01: Prime Time
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/protohackers>.
+- Use Jason to parse json.
+- `packet: :line` is really helpful.
 
+## Problem02: Means to an End
+
+Need to implement a basic data structure to help do the calculation.
+
+## Problem03: Budget Chat
+
+Using Elixir/Erlang to implement a chat server is so easy! And binary pattern matching is awesome!
