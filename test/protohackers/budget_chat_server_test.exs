@@ -1,5 +1,5 @@
 defmodule Protohackers.BudgetChatServerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "whole flow" do
     {:ok, socket1} =

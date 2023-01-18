@@ -52,7 +52,7 @@ defmodule Protohackers.EchoServer do
   @limit _100kb = 100 * 1024
 
   defp recv_until_closed(socket, buffer, buffer_size) do
-    case :gen_tcp.recv(socket, 0, 10_0000) do
+    case :gen_tcp.recv(socket, 0, 100_000) do
       {:ok, data} when buffer_size + byte_size(data) > @limit ->
         {:error, :buffer_overflow}
 

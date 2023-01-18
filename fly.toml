@@ -42,3 +42,11 @@ protocol = "tcp"
 [[services.ports]]
 handlers = []
 port = 5004
+
+[[services]]
+internal_port = 5005
+protocol = "udp"
+
+[[services.ports]]
+handlers = []
+port = 5005
