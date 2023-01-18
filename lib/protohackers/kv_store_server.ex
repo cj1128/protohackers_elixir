@@ -10,11 +10,20 @@ defmodule Protohackers.KvStoreServer do
 
   @impl true
   def init(:empty) do
-    # if we test using 'nc' and 'localhost', nc will default to inet6
-    # set it to 'inet6', we can still access it using inet4
-    case :gen_udp.open(5005, [:binary, :inet6, active: false, recbuf: 1000]) do
+    address =
+      case System.fetch_env("FLY_APP_NAME") do
+        {:ok, _} ->
+          {:ok, fly_global_ip} = :inet.getaddr(~c"fly-global-services", :inet)
+          fly_global_ip
+
+        :error ->
+          {0, 0, 0, 0}
+      end
+
+    # NOTE: make sure to use 'nc -4' to test this server
+    case :gen_udp.open(5005, [:binary, active: false, recbuf: 1000, ip: address]) do
       {:ok, socket} ->
-        Logger.info("Starting kv store server")
+        Logger.info("Starting kv store server on #{:inet.ntoa(address)}:5005")
         state = %__MODULE__{socket: socket}
         {:ok, state, {:continue, :recv}}
 
@@ -27,7 +36,9 @@ defmodule Protohackers.KvStoreServer do
   def handle_continue(:recv, state = %__MODULE__{}) do
     case :gen_udp.recv(state.socket, 0) do
       {:ok, {address, port, packet}} ->
-        Logger.debug("Received UDP packet #{inspect(packet)}")
+        Logger.debug(
+          "Received UDP packet from #{inspect(address)}:#{inspect(port)} #{inspect(packet)}"
+        )
 
         state =
           case String.split(packet, "=", parts: 2) do
@@ -40,8 +51,9 @@ defmodule Protohackers.KvStoreServer do
               put_in(state.store[key], value)
 
             [key] ->
-              Logger.debug("Query key #{inspect(key)}")
-              :gen_udp.send(state.socket, address, port, "#{key}=#{state.store[key]}")
+              value = state.store[key]
+              Logger.debug("Query key #{inspect(key)}, will reply with value #{inspect(value)}")
+              :gen_udp.send(state.socket, address, port, "#{key}=#{value}")
               state
           end
 
