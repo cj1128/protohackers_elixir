@@ -50,3 +50,11 @@ protocol = "udp"
 [[services.ports]]
 handlers = []
 port = 5005
+
+[[services]]
+internal_port = 5006
+protocol = "tcp"
+
+[[services.ports]]
+handlers = []
+port = 5006

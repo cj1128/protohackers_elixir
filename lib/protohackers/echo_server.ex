@@ -16,7 +16,7 @@ defmodule Protohackers.EchoServer do
 
     case :gen_tcp.listen(5001, listen_opts) do
       {:ok, socket} ->
-        Logger.info("Starting echo server")
+        Logger.info("Starting echo server on port 5001")
         state = %__MODULE__{listen_socket: socket, supervisor: supervisor}
         {:ok, state, {:continue, :accept}}
 

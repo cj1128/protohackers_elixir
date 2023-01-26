@@ -26,7 +26,7 @@ defmodule Protohackers.BudgetChatServer do
 
     case :gen_tcp.listen(5004, listen_opts) do
       {:ok, socket} ->
-        Logger.info("Starting budget chat server")
+        Logger.info("Starting budget chat server on port 5004")
         state = %__MODULE__{listen_socket: socket, supervisor: supervisor, ets: ets}
         {:ok, state, {:continue, :accept}}
 
