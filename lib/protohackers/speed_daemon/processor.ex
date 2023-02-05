@@ -94,19 +94,18 @@ defmodule Protohackers.SpeedDaemon.Processor do
             ticket_end_day = floor(ticket.timestamp2 / 86_400)
             plate = ticket.plate
 
-            new_acc =
-              ticket_start_day..ticket_end_day
-              |> Enum.reduce(acc, fn day, acc ->
-                unless MapSet.member?(acc, {day, plate}) do
-                  {pid, _} = Enum.random(dispatchers)
-                  GenServer.cast(pid, {:send_ticket, ticket})
-                  MapSet.put(acc, {day, plate})
-                else
-                  acc
-                end
-              end)
+            if Enum.any?(ticket_start_day..ticket_end_day, fn d ->
+                 MapSet.member?(acc, {d, plate})
+               end) do
+              {[], acc}
+            else
+              {pid, _} = Enum.random(dispatchers)
+              GenServer.cast(pid, {:send_ticket, ticket})
 
-            {[], new_acc}
+              new_acc = for d <- ticket_start_day..ticket_end_day, into: acc, do: {d, plate}
+
+              {[], new_acc}
+            end
         end
       end
     )
