@@ -1,5 +1,5 @@
 defmodule Protohackers.MITM.Connection do
-  use GenServer, restart: :transient
+  use GenServer, restart: :temporary
   require Logger
   alias Protohackers.MITM.Boguscoin
 

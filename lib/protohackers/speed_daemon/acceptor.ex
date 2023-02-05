@@ -1,5 +1,5 @@
-defmodule Protohackers.MITM.Acceptor do
-  use Task
+defmodule Protohackers.SpeedDaemon.Acceptor do
+  use Task, restart: :transient
   require Logger
 
   def start_link([]) do
@@ -7,26 +7,24 @@ defmodule Protohackers.MITM.Acceptor do
   end
 
   def run() do
-    case :gen_tcp.listen(5006, [
+    case :gen_tcp.listen(5007, [
            :binary,
-           active: true,
-           reuseaddr: true,
-           packet: :line,
-           buffer: 100 * 1024
+           active: :once,
+           reuseaddr: true
          ]) do
       {:ok, socket} ->
-        Logger.info("Starting MITM acceptor on port 5006")
+        Logger.info("Starting SpeedDaemon acceptor on port 5007")
         accept(socket)
 
       {:error, reason} ->
-        raise "Failed to start MITM acceptor: #{inspect(reason)}"
+        raise "Failed to start SpeedDaemon acceptor: #{inspect(reason)}"
     end
   end
 
   defp accept(listen_socket) do
     case :gen_tcp.accept(listen_socket) do
       {:ok, socket} ->
-        with {:ok, conn} <- Protohackers.MITM.ConnectionSup.start_child(socket),
+        with {:ok, conn} <- Protohackers.SpeedDaemon.ConnectionSup.start_child(socket),
              :ok <- :gen_tcp.controlling_process(socket, conn) do
           accept(listen_socket)
         else

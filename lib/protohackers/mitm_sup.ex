@@ -1,4 +1,4 @@
-defmodule Protohackers.MITMServer do
+defmodule Protohackers.MITMSup do
   use Supervisor
 
   def start_link([]) do

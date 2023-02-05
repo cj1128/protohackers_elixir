@@ -58,3 +58,11 @@ protocol = "tcp"
 [[services.ports]]
 handlers = []
 port = 5006
+
+[[services]]
+internal_port = 5007
+protocol = "tcp"
+
+[[services.ports]]
+handlers = []
+port = 5007
