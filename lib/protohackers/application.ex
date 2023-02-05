@@ -8,12 +8,12 @@ defmodule Protohackers.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Protohackers.EchoServer,
-      # Protohackers.PrimeServer,
-      # Protohackers.PriceServer,
-      # Protohackers.BudgetChatServer,
-      # Protohackers.KvStoreServer,
-      # Protohackers.MITMSup,
+      Protohackers.EchoServer,
+      Protohackers.PrimeServer,
+      Protohackers.PriceServer,
+      Protohackers.BudgetChatServer,
+      Protohackers.KvStoreServer,
+      Protohackers.MITMSup,
       Protohackers.SpeedDaemonSup
     ]
 

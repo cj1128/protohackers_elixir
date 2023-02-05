@@ -1,14 +1,12 @@
 defmodule Protohackers.SpeedDaemon.Processor do
   use GenServer
   require Logger
-  alias Protohackers.SpeedDaemon.Util
-  alias Protohackers.SpeedDaemon.Message
-  alias Protohackers.SpeedDaemon.DispatcherRegistry
+  alias Protohackers.SpeedDaemon.{Util, DispatcherRegistry}
 
   # limits: road -> limit
   # records: {road, plate} -> {mile, timestamp}
   # pending_tickets: road -> Message.Ticket[]
-  # sent_tickets: {day, plate}
+  # sent_tickets: MapSet({day, plate})
   defstruct limits: %{}, records: %{}, pending_tickets: %{}, sent_tickets: MapSet.new()
 
   def start_link([]) do
@@ -82,37 +80,35 @@ defmodule Protohackers.SpeedDaemon.Processor do
   defp dispatch_tickets_to_available_dispatchers([], sent, _road), do: {[], sent}
 
   defp dispatch_tickets_to_available_dispatchers(tickets, sent, road) do
-    case Registry.lookup(DispatcherRegistry, road) do
-      [] ->
-        Logger.debug("No dispatchers availble for #{road}, keeping ticket")
-        {tickets, sent}
+    Enum.flat_map_reduce(
+      tickets,
+      sent,
+      fn ticket, acc ->
+        case Registry.lookup(DispatcherRegistry, road) do
+          [] ->
+            Logger.debug("No dispatchers availble for #{road}, keeping ticket")
+            {[ticket], acc}
 
-      dispatchers ->
-        sent_this_time =
-          for %Message.Ticket{} = ticket <- tickets do
+          dispatchers ->
             ticket_start_day = floor(ticket.timestamp1 / 86_400)
             ticket_end_day = floor(ticket.timestamp2 / 86_400)
             plate = ticket.plate
 
-            ticket_start_day..ticket_end_day
-            |> Enum.flat_map(fn day ->
-              unless MapSet.member?(sent, {day, plate}) do
-                {pid, _} = Enum.random(dispatchers)
-                GenServer.cast(pid, {:send_ticket, ticket})
+            new_acc =
+              ticket_start_day..ticket_end_day
+              |> Enum.reduce(acc, fn day, acc ->
+                unless MapSet.member?(acc, {day, plate}) do
+                  {pid, _} = Enum.random(dispatchers)
+                  GenServer.cast(pid, {:send_ticket, ticket})
+                  MapSet.put(acc, {day, plate})
+                else
+                  acc
+                end
+              end)
 
-                [{day, plate}]
-              else
-                []
-              end
-            end)
-          end
-          |> List.flatten()
-
-        sent =
-          sent_this_time
-          |> Enum.reduce(sent, fn item, acc -> MapSet.put(acc, item) end)
-
-        {[], sent}
-    end
+            {[], new_acc}
+        end
+      end
+    )
   end
 end
