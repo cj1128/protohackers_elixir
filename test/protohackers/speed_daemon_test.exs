@@ -11,10 +11,10 @@ defmodule SpeedDaemon.IntegrationTest do
     send_message(dispatcher, %Message.IAmDispatcher{roads: [582]})
 
     send_message(camera1, %Message.IAmCamera{road: 582, mile: 4452, limit: 100})
-    send_message(camera1, %Message.Plate{plate: "X1", timestamp: 203_663})
+    send_message(camera1, %Message.Plate{plate: "A1", timestamp: 203_663})
 
     send_message(camera2, %Message.IAmCamera{road: 582, mile: 4462, limit: 100})
-    send_message(camera2, %Message.Plate{plate: "X1", timestamp: 203_963})
+    send_message(camera2, %Message.Plate{plate: "A1", timestamp: 203_963})
 
     assert_receive {:tcp, ^dispatcher, data}
     assert {:ok, message, <<>>} = Message.decode(data)
@@ -22,7 +22,7 @@ defmodule SpeedDaemon.IntegrationTest do
     assert message == %Message.Ticket{
              mile1: 4452,
              mile2: 4462,
-             plate: "X1",
+             plate: "A1",
              road: 582,
              speed: 12000,
              timestamp1: 203_663,
@@ -33,43 +33,77 @@ defmodule SpeedDaemon.IntegrationTest do
   test "ticketing multiple cars" do
     {:ok, camera1} = :gen_tcp.connect(~c"localhost", 5007, [:binary, active: true])
     {:ok, camera2} = :gen_tcp.connect(~c"localhost", 5007, [:binary, active: true])
+    {:ok, camera3} = :gen_tcp.connect(~c"localhost", 5007, [:binary, active: true])
+    {:ok, camera4} = :gen_tcp.connect(~c"localhost", 5007, [:binary, active: true])
     {:ok, dispatcher} = :gen_tcp.connect(~c"localhost", 5007, [:binary, active: true])
 
     send_message(dispatcher, %Message.IAmDispatcher{roads: [101]})
 
     send_message(camera1, %Message.IAmCamera{road: 101, mile: 4452, limit: 100})
-    send_message(camera1, %Message.Plate{plate: "X2", timestamp: 203_663})
-
     send_message(camera2, %Message.IAmCamera{road: 101, mile: 4462, limit: 100})
-    send_message(camera2, %Message.Plate{plate: "X2", timestamp: 203_963})
+    send_message(camera3, %Message.IAmCamera{road: 101, mile: 4472, limit: 100})
+    send_message(camera4, %Message.IAmCamera{road: 101, mile: 4482, limit: 100})
 
+    send_message(camera1, %Message.Plate{plate: "B1", timestamp: 203_663})
+    send_message(camera2, %Message.Plate{plate: "B1", timestamp: 203_963})
     assert_receive {:tcp, ^dispatcher, data}
     assert {:ok, message, <<>>} = Message.decode(data)
 
     assert message == %Message.Ticket{
              mile1: 4452,
              mile2: 4462,
-             plate: "X2",
+             plate: "B1",
              road: 101,
              speed: 12000,
              timestamp1: 203_663,
              timestamp2: 203_963
            }
 
-    send_message(camera1, %Message.Plate{plate: "X3", timestamp: 0})
-    send_message(camera2, %Message.Plate{plate: "X3", timestamp: 300})
+    send_message(camera1, %Message.Plate{plate: "B3", timestamp: 86200})
+    send_message(camera2, %Message.Plate{plate: "B2", timestamp: 0})
+    send_message(camera3, %Message.Plate{plate: "B2", timestamp: 300})
+    assert_receive {:tcp, ^dispatcher, data}
+    assert {:ok, message, <<>>} = Message.decode(data)
 
+    assert message == %Message.Ticket{
+             mile1: 4462,
+             mile2: 4472,
+             plate: "B2",
+             road: 101,
+             speed: 12000,
+             timestamp1: 0,
+             timestamp2: 300
+           }
+
+    send_message(camera2, %Message.Plate{plate: "B3", timestamp: 86300})
     assert_receive {:tcp, ^dispatcher, data}
     assert {:ok, message, <<>>} = Message.decode(data)
 
     assert message == %Message.Ticket{
              mile1: 4452,
              mile2: 4462,
-             plate: "X3",
+             plate: "B3",
              road: 101,
-             speed: 12000,
-             timestamp1: 0,
-             timestamp2: 300
+             speed: 36000,
+             timestamp1: 86200,
+             timestamp2: 86300
+           }
+
+    send_message(camera3, %Message.Plate{plate: "B3", timestamp: 86500})
+    refute_receive {:tcp, ^dispatcher, _data}
+
+    send_message(camera4, %Message.Plate{plate: "B3", timestamp: 86700})
+    assert_receive {:tcp, ^dispatcher, data}
+    assert {:ok, message, <<>>} = Message.decode(data)
+
+    assert message == %Message.Ticket{
+             mile1: 4472,
+             mile2: 4482,
+             plate: "B3",
+             road: 101,
+             speed: 18000,
+             timestamp1: 86500,
+             timestamp2: 86700
            }
   end
 
@@ -81,9 +115,9 @@ defmodule SpeedDaemon.IntegrationTest do
     send_message(camera2, %Message.IAmCamera{road: 102, mile: 4462, limit: 100})
     send_message(camera3, %Message.IAmCamera{road: 102, mile: 4472, limit: 100})
 
-    send_message(camera1, %Message.Plate{plate: "X4", timestamp: 100})
-    send_message(camera2, %Message.Plate{plate: "X4", timestamp: 400})
-    send_message(camera3, %Message.Plate{plate: "X4", timestamp: 700})
+    send_message(camera1, %Message.Plate{plate: "C1", timestamp: 100})
+    send_message(camera2, %Message.Plate{plate: "C1", timestamp: 400})
+    send_message(camera3, %Message.Plate{plate: "C1", timestamp: 700})
 
     {:ok, dispatcher} = :gen_tcp.connect(~c"localhost", 5007, [:binary, active: true])
     send_message(dispatcher, %Message.IAmDispatcher{roads: [102]})
@@ -92,7 +126,7 @@ defmodule SpeedDaemon.IntegrationTest do
     assert {:ok, message, <<>>} = Message.decode(data)
 
     assert %Message.Ticket{} = message
-    refute_receive {:tcp, ^dispatcher, data}
+    refute_receive {:tcp, ^dispatcher, _data}
   end
 
   test "pending tickets get flushed" do

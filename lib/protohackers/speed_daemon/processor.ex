@@ -63,13 +63,20 @@ defmodule Protohackers.SpeedDaemon.Processor do
     records = Map.get(state.records, {road, plate}, [])
     records = [{mile, timestamp} | records]
 
-    tickets = Util.calc_tickets(records, state.limits[road], road, plate)
+    plate_tickets = Util.calc_tickets(records, state.limits[road], road, plate)
 
-    {left, sent} = dispatch_tickets_to_available_dispatchers(tickets, state.sent_tickets, road)
+    {left, sent} =
+      dispatch_tickets_to_available_dispatchers(plate_tickets, state.sent_tickets, road)
 
     # TDOO: need a way to clean up records, this will cause memory leak now
     state = put_in(state, [Access.key!(:records), {road, plate}], records)
-    state = put_in(state, [Access.key!(:pending_tickets), road], left)
+
+    state =
+      update_in(state, [Access.key!(:pending_tickets), road], fn road_tickets ->
+        road_tickets = road_tickets || []
+        road_tickets ++ left
+      end)
+
     state = put_in(state.sent_tickets, sent)
 
     {:noreply, state}
