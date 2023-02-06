@@ -93,7 +93,7 @@ defmodule Protohackers.SpeedDaemon.Processor do
       fn ticket, acc ->
         case Registry.lookup(DispatcherRegistry, road) do
           [] ->
-            Logger.debug("No dispatchers availble for #{road}, keeping ticket")
+            Logger.debug("No dispatchers availble for road #{road}, keeping ticket")
             {[ticket], acc}
 
           dispatchers ->
@@ -107,6 +107,7 @@ defmodule Protohackers.SpeedDaemon.Processor do
               {[], acc}
             else
               {pid, _} = Enum.random(dispatchers)
+              Logger.debug("Sending ticket #{inspect(ticket)}")
               GenServer.cast(pid, {:send_ticket, ticket})
 
               new_acc = for d <- ticket_start_day..ticket_end_day, into: acc, do: {d, plate}

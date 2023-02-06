@@ -9,7 +9,7 @@ defmodule Protohackers.SpeedDaemon.ConnectionSup do
 
   @impl true
   def init(:no_args) do
-    DynamicSupervisor.init(strategy: :one_for_one, max_children: 50)
+    DynamicSupervisor.init(strategy: :one_for_one, max_children: 1000)
   end
 
   def start_child(socket) do

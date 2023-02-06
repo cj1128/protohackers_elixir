@@ -112,6 +112,13 @@ defmodule Protohackers.SpeedDaemon.Connection do
   end
 
   defp send_message(socket, msg) do
+    # to ease our testing code, we ensure not buffering here
+    # so we can use `assert_receive` in our testing
+    # otherwise, erlang may buffer two sends into one message delivering
+    if Application.get_env(:protohackers, :env) == :test do
+      :timer.sleep(50)
+    end
+
     :gen_tcp.send(socket, Message.encode(msg))
   end
 
