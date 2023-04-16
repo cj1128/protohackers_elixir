@@ -15,9 +15,9 @@ defmodule Protohackers.PriceServer do
 
     listen_opts = [mode: :binary, active: false, reuseaddr: true, exit_on_close: false]
 
-    case :gen_tcp.listen(5003, listen_opts) do
+    case :gen_tcp.listen(8888, listen_opts) do
       {:ok, socket} ->
-        Logger.info("Starting price server on port 5003")
+        Logger.info("Starting price server on port 8888")
         state = %__MODULE__{listen_socket: socket, supervisor: supervisor}
         {:ok, state, {:continue, :accept}}
 

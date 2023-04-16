@@ -105,6 +105,10 @@ defmodule Protohackers.SpeedDaemon.Connection do
     end
   end
 
+  defp handle_message(_msg, _state) do
+    {:error, "invalid message type"}
+  end
+
   defp send_error_and_close(socket, reason) do
     Logger.error("error #{inspect(reason)}")
     :gen_tcp.send(socket, Message.encode(%Message.Error{msg: reason}))

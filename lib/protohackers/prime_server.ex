@@ -22,9 +22,9 @@ defmodule Protohackers.PrimeServer do
       buffer: 100 * 1024
     ]
 
-    case :gen_tcp.listen(5002, listen_opts) do
+    case :gen_tcp.listen(8888, listen_opts) do
       {:ok, socket} ->
-        Logger.info("Starting prime server on port 5002")
+        Logger.info("Starting prime server on port 8888")
         state = %__MODULE__{listen_socket: socket, supervisor: supervisor}
         {:ok, state, {:continue, :accept}}
 

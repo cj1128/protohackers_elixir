@@ -7,13 +7,13 @@ defmodule Protohackers.SpeedDaemon.Acceptor do
   end
 
   def run() do
-    case :gen_tcp.listen(5007, [
+    case :gen_tcp.listen(8888, [
            :binary,
            active: :once,
            reuseaddr: true
          ]) do
       {:ok, socket} ->
-        Logger.info("Starting SpeedDaemon acceptor on port 5007")
+        Logger.info("Starting SpeedDaemon acceptor on port 8888")
         accept(socket)
 
       {:error, reason} ->

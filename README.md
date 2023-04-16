@@ -6,13 +6,21 @@ Start the project by running `mix run --no-halt`.
 
 ## Problems
 
-- 00: Smoke test, , `echo_server.ex`, port 5001
-- 01: Prime time, `prime_server.ex`, port 5002
-- 02: Means to an end, `price_server.ex`, port 5003
-- 03: Budget chat, `budget_chat_server.ex`, port 5004
-- 04: Unusual database program, `kv_store_server.ex`, port 5005
-- 05: Mob in the middle, `mitm_server.ex`, port 5006
-- 06: Speed daemon, `speed_daemon_server.ex`, port 5007
+How to run:
+
+```shell
+$ mix run --no-halt
+```
+
+All servers are using port `8888`. I have opened this port in my computer to be accessible from the internet, so there is no need to deploy.
+
+- 00: Smoke test, , `echo_server.ex`
+- 01: Prime time, `prime_server.ex`
+- 02: Means to an end, `price_server.ex`
+- 03: Budget chat, `budget_chat_server.ex`
+- 04: Unusual database program, `kv_store_server.ex`
+- 05: Mob in the middle, `mitm_sup.ex`
+- 06: Speed daemon, `speed_daemon_sup.ex`
 
 ## What I Learn
 

@@ -21,9 +21,9 @@ defmodule Protohackers.KvStoreServer do
       end
 
     # NOTE: make sure to use 'nc -4' to test this server
-    case :gen_udp.open(5005, [:binary, active: false, recbuf: 1000, ip: address]) do
+    case :gen_udp.open(8888, [:binary, active: false, recbuf: 1000, ip: address]) do
       {:ok, socket} ->
-        Logger.info("Starting kv store server on #{:inet.ntoa(address)}:5005")
+        Logger.info("Starting kv store server on #{:inet.ntoa(address)}:8888")
         state = %__MODULE__{socket: socket}
         {:ok, state, {:continue, :recv}}
 
